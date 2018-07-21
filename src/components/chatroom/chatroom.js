@@ -32,6 +32,8 @@ import {
   Fab
 } from "native-base";
 
+import firebase from 'firebase';
+import config from '../../api/firebase/config';
 const cover = require('../../asset/logo.png');
 const facebook = require('../../asset/facebook1.png');
 const google = require('../../asset/google.png');
@@ -57,10 +59,57 @@ export default class chatroom extends Component<Props> {
       constructor(){
         super();
         this.state={
-          active:'false'
+          active:'false',
+          contentChat:[],
+          text:''
         }
       }
+
+      componentDidMount(){
+        var getChat = firebase.database().ref(`messenger/${this.props.navigation.state.params.idChat}/`);
+        getChat.on('value',snapshot=>{
+          this.setState({
+              contentChat:snapshot.val().chat
+          })
+        })
+      }
+
+      _handleMessege =(res)=>{
+        this.setState({
+          text:res
+        })
+      }
+
+      postMessege=()=>{
+        var idchat = this.props.navigation.state.params.idChat;
+        var id = this.props.navigation.state.params.uid;
+        var name = this.props.navigation.state.params.name;
+
+        var addChat = firebase.database().ref(`messenger/${idchat}/chat/${this.state.contentChat.length}`)
+        addChat.set({
+            _idUser:id,
+            content:this.state.text,
+            name:name,
+            time: `${new Date().getHours()}:${new Date().getMinutes()}`
+        })
+      }
   render() {
+    const chatting = this.state.contentChat.map((value,key)=>{
+      if(this.props.navigation.state.params.uid === value._idUser){
+        return(
+            <View style={styles.right}>
+              <Text>{value.content}</Text>
+            </View>
+        )
+      }
+      else{
+        return(
+          <View style={styles.left}>
+            <Text>{value.content}</Text>
+          </View>
+        )
+      }
+    })
     return (
       <Container 
         style={styles.container}
@@ -86,47 +135,20 @@ export default class chatroom extends Component<Props> {
           </Right>
         </Header>
         <Content>
-            <View style={{backgroundColor:'#8ACDCD', width:200, margin:10, padding:10, borderRadius:12}}>
-                <Text>woy lu dimn bro?</Text>
-            </View>
-            <View style={{backgroundColor:'#FFFFFF',marginLeft:210, width:200, margin:10, padding:20, borderRadius:12}}>
-                <Text>ada apa njeng? sene kumpul yok</Text>
-            </View>
-            <View style={{backgroundColor:'#8ACDCD', width:200, margin:10, padding:20, borderRadius:12}}>
-                <Text>woy lu dimn bro?</Text>
-            </View>
-            <View style={{backgroundColor:'#FFFFFF',marginLeft:210, width:200, margin:10, padding:20, borderRadius:12}}>
-                <Text>ada apa njeng? sene kumpul yok</Text>
-            </View>
-            <View style={{backgroundColor:'#8ACDCD', width:200, margin:10, padding:20, borderRadius:12}}>
-                <Text>woy lu dimn bro?</Text>
-            </View>
-            <View style={{backgroundColor:'#FFFFFF',marginLeft:210, width:200, margin:10, padding:20, borderRadius:12}}>
-                <Text>ada apa njeng? sene kumpul yok</Text>
-            </View>
-            <View style={{backgroundColor:'#8ACDCD', width:200, margin:10, padding:20, borderRadius:12}}>
-                <Text>woy lu dimn bro?</Text>
-            </View>
-            <View style={{backgroundColor:'#FFFFFF',marginLeft:210, width:200, margin:10, padding:20, borderRadius:12}}>
-                <Text>ada apa njeng? sene kumpul yok</Text>
-            </View>
-            <View style={{backgroundColor:'#8ACDCD', width:200, margin:10, padding:20, borderRadius:12}}>
-                <Text>woy lu dimn bro?</Text>
-            </View>
-            <View style={{backgroundColor:'#FFFFFF',marginLeft:210, width:200, margin:10, padding:20, borderRadius:12}}>
-                <Text>ada apa njeng? sene kumpul yok</Text>
-            </View>
-            <View style={{backgroundColor:'#8ACDCD', width:200, margin:10, padding:20, borderRadius:12}}>
-                <Text>woy lu dimn bro?</Text>
-            </View>
-            <View style={{backgroundColor:'#FFFFFF',marginLeft:210, width:200, margin:10, padding:20, borderRadius:12}}>
-                <Text>ada apa njeng? sene kumpul yok</Text>
-            </View>
+          {chatting}
         </Content>
         <Footer style={{backgroundColor:'#F5FCFF'}}>    
-            <Input placeholder=" Chatting" style={{color:'#5D5A5A',backgroundColor:'#FFFFFF',margin:5, borderRadius:50, borderBottomColor:'#6F6F6F'}}/>
+            <Input placeholder=" Chatting"
+                  onChangeText={
+                    this._handleMessege
+                  } 
+                  style={styles.inputText}/>
             {/* <Button rounded><Text>+</Text></Button> */}
-            <Button block style={{margin:5, borderRadius:50, backgroundColor:'#4AB8E9'}}>
+            <Button 
+              block style={styles.btnMessengge}
+              onPress={()=>{
+                this.postMessege()
+              }}>
               <Icon name="send" />
               {/* <Text>News</Text> */}
             </Button>
@@ -143,6 +165,21 @@ const styles = StyleSheet.create({
     // alignItems: 'center',
     backgroundColor: '#F5FCFF',
   },
+  right:{
+    backgroundColor:'#FFFFFF',
+    marginLeft:210, 
+    width:200, 
+    margin:10, 
+    padding:20, 
+    borderRadius:12
+  },
+  left:{
+    backgroundColor:'#8ACDCD', 
+    width:200, 
+    margin:10, 
+    padding:10, 
+    borderRadius:12
+  },
   listStyle:{
     marginTop:'13%',
     // width:'90%'
@@ -152,6 +189,13 @@ const styles = StyleSheet.create({
     marginTop:'39%',
     width:200,
     height:200
+  },
+  inputText:{
+    color:'#5D5A5A',
+    backgroundColor:'#FFFFFF',
+    margin:5, 
+    borderRadius:50, 
+    borderBottomColor:'#6F6F6F'
   },
   btnProviderFacebook:{
     width:50,
@@ -166,6 +210,10 @@ const styles = StyleSheet.create({
     marginTop: 50,
     borderRadius:50,
     width:200,
+    backgroundColor:'#4AB8E9'
+  },
+  btnMessengge:{
+    margin:5, borderRadius:50, 
     backgroundColor:'#4AB8E9'
   }
 });

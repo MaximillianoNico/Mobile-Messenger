@@ -8,6 +8,7 @@ import {
   // Button
 } from 'react-native';
 
+import Chat from '../chatroom/chatroom';
 import firebase from 'firebase';
 import config from '../../api/firebase/config';
 // firebase.initializeApp(config);
@@ -68,31 +69,62 @@ export default class chatlist extends Component<Props> {
         }
       }
     componentDidMount(){
-      firebase.auth.onAuthStateChanged((user)=>{
+      firebase.auth().onAuthStateChanged((user)=>{
         if(user){           
           this.setState({
               uid:user.uid
           })
-          this.OnStateAuth();
           // this.setIdChat();
-          alert("Welcome to WebChat");
-
-          var dbUser = firebase.database().ref(`user/${this.props.uid}/`);
-          dbUser.on('value', snapshot =>{
-              this.setState({
-                  userMessenger:snapshot.val(),
-                  totalChat:snapshot.val().chat,
-                  name:snapshot.val().name
-              });
-          })
-          
+          alert("Welcome to WebChat : "+this.state.uid+" "+this.state.userMessenger);
+          if(this.state.uid){
+            var dbUser = firebase.database().ref(`user/${user.uid}/`);
+            dbUser.on('value', snapshot =>{
+                this.setState({
+                    userMessenger:snapshot.val(),
+                    totalChat:snapshot.val().chat,
+                    name:snapshot.val().name
+                });
+            })
+            alert("user messenger => "+JSON.stringify(this.state.totalChat));
+          }
         }else{
             alert("Please Sign In before use WebChat");
             this.props.navigation.navigate('signIn');
         }
       })
     }
+    move=()=>{
+      return(<Chat/>)
+    }
   render() {
+    const chat = this.state.totalChat.map((value,key)=>{
+      return (
+        <ListItem avatar
+              onPress={()=>
+                {
+                this.props.navigation.navigate('chatRoom',{
+                  idChat:value._idMessenger,
+                  uid:this.state.uid,
+                  name:this.state.name
+                  }
+                )
+                // alert(`${value._idMessenger}`)
+                // this.move;
+              }
+              }>
+              <Left>
+                <Thumbnail source={user}/>
+              </Left>
+              <Body>
+                <Text>{value.groupName}</Text>
+                <Text note numberOfLines={1}>Its time to build a difference . .</Text>
+              </Body>
+              <Right>
+                <Text note>3:43 pm</Text>
+              </Right>
+            </ListItem>
+      )
+    })
     return (
       <Container 
         style={styles.container}
@@ -104,7 +136,7 @@ export default class chatlist extends Component<Props> {
             </Button>
           </Left>
           <Body>
-            <Title>Maximilliano</Title>
+            <Title>{this.state.name}</Title>
             <Subtitle>Subtitle</Subtitle>
           </Body>
           <Right>
@@ -121,186 +153,7 @@ export default class chatlist extends Component<Props> {
         </Header>
         <Content>
           <List>
-            <ListItem avatar
-              onPress={()=>{
-                this.props.navigation.navigate('chatRoom')
-              }}>
-              <Left>
-                <Thumbnail source={user}/>
-              </Left>
-              <Body>
-                <Text>Sankhadeep</Text>
-                <Text note numberOfLines={1}>Its time to build a difference . .</Text>
-              </Body>
-              <Right>
-                <Text note>3:43 pm</Text>
-              </Right>
-            </ListItem>
-            <ListItem avatar
-              onPress={()=>{
-                this.props.navigation.navigate('chatRoom')
-              }}>
-              <Left>
-                <Thumbnail source={user}/>
-              </Left>
-              <Body>
-                <Text>Simon Mignolet</Text>
-                <Text note numberOfLines={1}>Its time to build a difference . .</Text>
-              </Body>
-              <Right>
-                <Text note>6:10 pm</Text>
-              </Right>
-            </ListItem>
-            <ListItem avatar
-              onPress={()=>{
-                this.props.navigation.navigate('chatRoom')
-              }}>
-              <Left>
-                <Thumbnail source={user}/>
-              </Left>
-              <Body>
-                <Text>Sankhadeep</Text>
-                <Text note numberOfLines={1}>Its time to build a difference . .</Text>
-              </Body>
-              <Right>
-                <Text note>3:43 pm</Text>
-              </Right>
-            </ListItem>
-            <ListItem avatar
-              onPress={()=>{
-                this.props.navigation.navigate('chatRoom')
-              }}>
-              <Left>
-                <Thumbnail source={user}/>
-              </Left>
-              <Body>
-                <Text>Simon Mignolet</Text>
-                <Text note numberOfLines={1}>Its time to build a difference . .</Text>
-              </Body>
-              <Right>
-                <Text note>6:10 pm</Text>
-              </Right>
-            </ListItem>
-            <ListItem avatar
-              onPress={()=>{
-                this.props.navigation.navigate('chatRoom')
-              }}>
-              <Left>
-                <Thumbnail source={user}/>
-              </Left>
-              <Body>
-                <Text>Sankhadeep</Text>
-                <Text note numberOfLines={1}>Its time to build a difference . .</Text>
-              </Body>
-              <Right>
-                <Text note>3:43 pm</Text>
-              </Right>
-            </ListItem>
-            <ListItem avatar
-              onPress={()=>{
-                this.props.navigation.navigate('chatRoom')
-              }}>
-              <Left>
-                <Thumbnail source={user}/>
-              </Left>
-              <Body>
-                <Text>Simon Mignolet</Text>
-                <Text note numberOfLines={1}>Its time to build a difference . .</Text>
-              </Body>
-              <Right>
-                <Text note>6:10 pm</Text>
-              </Right>
-            </ListItem>
-            <ListItem avatar
-              onPress={()=>{
-                this.props.navigation.navigate('chatRoom')
-              }}>
-              <Left>
-                <Thumbnail source={user}/>
-              </Left>
-              <Body>
-                <Text>Sankhadeep</Text>
-                <Text note numberOfLines={1}>Its time to build a difference . .</Text>
-              </Body>
-              <Right>
-                <Text note>3:43 pm</Text>
-              </Right>
-            </ListItem>
-            <ListItem avatar
-              onPress={()=>{
-                this.props.navigation.navigate('chatRoom')
-              }}>
-              <Left>
-                <Thumbnail source={user}/>
-              </Left>
-              <Body>
-                <Text>Simon Mignolet</Text>
-                <Text note numberOfLines={1}>Its time to build a difference . .</Text>
-              </Body>
-              <Right>
-                <Text note>6:10 pm</Text>
-              </Right>
-            </ListItem>
-            <ListItem avatar
-              onPress={()=>{
-                this.props.navigation.navigate('chatRoom')
-              }}>
-              <Left>
-                <Thumbnail source={user}/>
-              </Left>
-              <Body>
-                <Text>Sankhadeep</Text>
-                <Text note numberOfLines={1}>Its time to build a difference . .</Text>
-              </Body>
-              <Right>
-                <Text note>3:43 pm</Text>
-              </Right>
-            </ListItem>
-            <ListItem avatar
-              onPress={()=>{
-                this.props.navigation.navigate('chatRoom')
-              }}>
-              <Left>
-                <Thumbnail source={user}/>
-              </Left>
-              <Body>
-                <Text>Simon Mignolet</Text>
-                <Text note numberOfLines={1}>Its time to build a difference . .</Text>
-              </Body>
-              <Right>
-                <Text note>6:10 pm</Text>
-              </Right>
-            </ListItem>
-            <ListItem avatar
-              onPress={()=>{
-                this.props.navigation.navigate('chatRoom')
-              }}>
-              <Left>
-                <Thumbnail source={user}/>
-              </Left>
-              <Body>
-                <Text>Sankhadeep</Text>
-                <Text note numberOfLines={1}>Its time to build a difference . .</Text>
-              </Body>
-              <Right>
-                <Text note>3:43 pm</Text>
-              </Right>
-            </ListItem>
-            <ListItem avatar
-              onPress={()=>{
-                this.props.navigation.navigate('chatRoom')
-              }}>
-              <Left>
-                <Thumbnail source={user}/>
-              </Left>
-              <Body>
-                <Text>Simon Mignolet</Text>
-                <Text note numberOfLines={1}>Its time to build a difference . .</Text>
-              </Body>
-              <Right>
-                <Text note>6:10 pm</Text>
-              </Right>
-            </ListItem>
+            {chat}
           </List>
         </Content>
         
